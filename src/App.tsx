@@ -10,10 +10,12 @@ import withAuthRedirect from 'src/hoc/withAuthRedirect';
 import withTokenRedirect from 'src/hoc/withTokenRedirect';
 import ForgotPasswordContainer from 'src/containers/forgotPassword';
 import NotFoundContainer from 'src/containers/notFound';
+import InternalErrorContainer from 'src/containers/internalError';
 import { ThemeProvider } from 'styled-components';
 import theme from 'src/theme';
 import FrontendRoute from './config/FrontendRoute';
 import CreateApplicationContainer from './containers/createApplication';
+
 
 
 class App extends React.Component {
@@ -30,6 +32,7 @@ class App extends React.Component {
             <Route exact={true} path={FrontendRoute.FORGOT_PASSWORD_PAGE} component={ForgotPasswordContainer} />
             <Route exact={true} path={FrontendRoute.CREATE_APPLICATION_PAGE} component={withAuthRedirect(CreateApplicationContainer, true)} />
             <Route exact={true} path={FrontendRoute.LOGIN_PAGE} component={withAuthRedirect(LoginContainer, false)} />
+            <Route exact={true} path="/err" component={InternalErrorContainer}/>
             <Route path="*" component={NotFoundContainer}/>
           </Switch>
         </BrowserRouter>
