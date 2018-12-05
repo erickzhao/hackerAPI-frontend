@@ -19,10 +19,12 @@ import FrontendRoute from 'src/config/FrontendRoute';
 import UserInfoController from 'src/config/UserInfoController';
 import WithToasterContainer from 'src/hoc/withToaster';
 import { toast } from 'react-toastify';
+import QRCodeComponent from 'src/components/QRCode';
 
 export interface IDashboardState {
     status: HackerStatus;
     confirmed: boolean;
+    accountId: string;
 }
 
 /**
@@ -33,7 +35,8 @@ class DashboardContainer extends React.Component<{}, IDashboardState> {
         super(props);
         this.state = {
             status: HackerStatus.HACKER_STATUS_NONE,
-            confirmed: true
+            confirmed: true,
+            accountId: '',
         }
         this.confirmAccountToastError = this.confirmAccountToastError.bind(this);
     }
@@ -49,15 +52,20 @@ class DashboardContainer extends React.Component<{}, IDashboardState> {
             }
         }
         try {
-            const confirmed = await UserInfoController.isConfirmed();
-            this.setState({ confirmed });
+            const userInfo = await UserInfoController.getUserInfo();
+            if (userInfo) {
+                this.setState({
+                    accountId: userInfo.id,
+                    confirmed: userInfo.confirmed
+                });
+            }
         } catch (e) {
             this.setState({ confirmed: false });
         }
     }
 
     public render() {
-        const { status, confirmed } = this.state;
+        const { status, confirmed, accountId } = this.state;
         return (
             <Flex flexDirection={'column'} alignItems={'center'}>
                 <H1>status: {status.toLowerCase()}</H1>
@@ -74,6 +82,10 @@ class DashboardContainer extends React.Component<{}, IDashboardState> {
                             <Image src={iconAccount} imgHeight={"125px"} />
                         </Card>
                     </Link>
+                    <Card width={"250px"} flexDirection={"column"}>
+                        <H2 fontSize={"28px"}>QR Code</H2>
+                        <QRCodeComponent accountId={accountId} />
+                    </Card>
 
                     <MediaQuery minWidth={960}>
                         <Box width={1}>
