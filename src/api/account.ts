@@ -1,8 +1,15 @@
 import { AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios';
-import { APIRoute, CACHE_USER_KEY, IAccount, IInviteInfo } from '../config';
+import {
+  APIRoute,
+  CACHE_USER_KEY,
+  IAccount,
+  IInviteInfo,
+  CACHE_INVITE_KEY,
+} from '../config';
 import LocalCache from '../util/LocalCache';
 import API from './api';
 import APIResponse from './APIResponse';
+import { IInviteResponse } from '../config/inviteResponse';
 
 class AccountAPI {
   constructor() {
@@ -77,6 +84,22 @@ class AccountAPI {
       account
     );
     LocalCache.remove(CACHE_USER_KEY);
+    return value;
+  }
+  /**
+   * Invites a user to create an account with the specified accountType.
+   * @param {{email: string, accountType: string}} info
+   */
+  public async getInvites(
+    overrideCache?: boolean
+  ): Promise<AxiosResponse<APIResponse<IInviteResponse>>> {
+    const key = CACHE_INVITE_KEY;
+    const cached: any = LocalCache.get(key);
+    if (cached && !overrideCache) {
+      return cached as AxiosResponse<APIResponse<IInviteResponse>>;
+    }
+    const value = await API.getEndpoint(APIRoute.ACCOUNT_INVITE).getAll();
+    LocalCache.set(key, value);
     return value;
   }
 
