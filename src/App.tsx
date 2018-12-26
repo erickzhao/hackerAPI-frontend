@@ -22,6 +22,7 @@ import withAuthRedirect from './shared/HOC/withAuthRedirect';
 import withTokenRedirect from './shared/HOC/withTokenRedirect';
 
 import EditApplicationContainer from './Application/ApplicationEdition';
+import InviteContainer from './Invite/Invite';
 import withHackerRedirect from './shared/HOC/withHackerRedirect';
 import withNavbar from './shared/HOC/withNavbar';
 import withThemeProvider from './shared/HOC/withThemeProvider';
@@ -114,6 +115,18 @@ class App extends React.Component {
             component={withNavbar(
               withAuthRedirect(LoginContainer, {
                 requiredAuthState: false,
+              })
+            )}
+          />
+          <Route
+            exact={true}
+            path={FrontendRoute.INVITE_USERS_PAGE}
+            component={withNavbar(
+              withAuthRedirect(InviteContainer, {
+                requiredAuthState: true,
+                redirAfterLogin: true,
+                AuthVerification: (user: IAccount) =>
+                  user.confirmed && user.accountType === UserType.STAFF,
               })
             )}
           />

@@ -8,6 +8,7 @@ export enum FrontendRoute {
   LOGIN_PAGE = '/login',
   CREATE_APPLICATION_PAGE = '/application/create',
   EDIT_APPLICATION_PAGE = '/application/edit',
+  INVITE_USERS_PAGE = '/admin/invite',
 }
 
 export default FrontendRoute;
