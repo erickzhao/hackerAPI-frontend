@@ -7,11 +7,14 @@ import {
 } from 'formik';
 import * as React from 'react';
 
+import { Box, Flex } from '@rebass/grid';
 import { Account } from '../api/account';
-import { IInviteInfo } from '../config';
-import { Button } from '../shared/Elements';
-import { FileUpload, Form } from '../shared/Form';
+import { IInviteInfo, REQUIRED_DESCRIPTION } from '../config';
+import { Button, FormDescription, H1, MaxWidthBox } from '../shared/Elements';
+import { Form } from '../shared/Form';
 import { Error } from '../shared/Form/FormikElements';
+import theme from '../shared/Styles/theme';
+import InviteFileUpload from './InviteFile';
 import { getValidationSchema } from './validationSchema';
 
 interface IInviteState {
@@ -39,14 +42,33 @@ class InviteContainer extends React.Component<{}, IInviteState> {
   }
   public render() {
     return (
-      <Formik
-        onSubmit={this.handleSubmit}
-        render={this.renderFormik}
-        initialValues={{
-          file: undefined,
-        }}
-        validationSchema={getValidationSchema()}
-      />
+      <MaxWidthBox m={'auto'} maxWidth={'500px'}>
+        <MaxWidthBox m={'auto'} maxWidth={'500px'}>
+          <H1
+            color={theme.colors.primary}
+            fontSize={'30px'}
+            textAlign={'center'}
+            marginTop={'0px'}
+            marginBottom={'20px'}
+            marginLeft={'0px'}
+          >
+            Account invites
+          </H1>
+          <FormDescription textAlign={'center'}>
+            {REQUIRED_DESCRIPTION}
+          </FormDescription>
+        </MaxWidthBox>
+        <MaxWidthBox m={'auto'} width={'500px'}>
+          <Formik
+            onSubmit={this.handleSubmit}
+            render={this.renderFormik}
+            initialValues={{
+              file: undefined,
+            }}
+            validationSchema={getValidationSchema()}
+          />
+        </MaxWidthBox>
+      </MaxWidthBox>
     );
   }
   private renderFormik(fp: FormikProps<any>) {
@@ -54,11 +76,18 @@ class InviteContainer extends React.Component<{}, IInviteState> {
       <Form onSubmit={fp.handleSubmit}>
         <FastField
           name="file"
-          component={FileUpload}
-          placeHolder={'Upload Invitation CSV'}
+          component={InviteFileUpload}
+          required={true}
+          label={'Upload Invitation CSV'}
         />
         <ErrorMessage component={Error} name="file" />
-        <Button type="submit">Upload Invites</Button>
+        <Flex justifyContent={'center'}>
+          <Box>
+            <Button type="submit" disabled={this.state.isInviting}>
+              Upload Invites
+            </Button>
+          </Box>
+        </Flex>
       </Form>
     );
   }
