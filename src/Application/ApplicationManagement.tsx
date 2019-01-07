@@ -3,6 +3,7 @@ import { AxiosResponse } from 'axios';
 import {
   ErrorMessage,
   FastField,
+  Field,
   Formik,
   FormikProps,
   FormikValues,
@@ -241,7 +242,6 @@ class ManageApplicationContainer extends React.Component<
           component={FormikElements.Input}
           label={CONSTANTS.GITHUB_LINK_LABEL}
           placeholder={CONSTANTS.GITHUB_LINK_PLACEHOLDER}
-          required={true}
         />
         <ErrorMessage
           component={FormikElements.Error}
@@ -296,7 +296,7 @@ class ManageApplicationContainer extends React.Component<
           component={FormikElements.Error}
           name="application.portfolioURL.other"
         />
-        <FastField
+        <Field
           name="resumeFile"
           component={ResumeComponent}
           label={CONSTANTS.RESUME_REQUEST_LABEL}

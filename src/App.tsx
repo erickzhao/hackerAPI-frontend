@@ -7,7 +7,7 @@ import NotFoundContainer from './404/404';
 import EditAccountContainer from './Account/AccountEdition';
 import ConfirmAccountContainer from './Account/EmailConfirmed';
 import CreateApplicationContainer from './Application/ApplicationCreation';
-import DashboardContainer from './Dashboard/Main';
+import Dashboard from './Dashboard/Main';
 import LoginContainer from './Login/Login';
 
 import {
@@ -22,7 +22,9 @@ import withAuthRedirect from './shared/HOC/withAuthRedirect';
 import withTokenRedirect from './shared/HOC/withTokenRedirect';
 
 import EditApplicationContainer from './Application/ApplicationEdition';
+import ConfirmAttendanceContainer from './ConfirmAttendance/ConfirmAttendance';
 import InviteContainer from './Invite/Invite';
+import SearchContainer from './Search/Search';
 import withHackerRedirect from './shared/HOC/withHackerRedirect';
 import withNavbar from './shared/HOC/withNavbar';
 import withThemeProvider from './shared/HOC/withThemeProvider';
@@ -35,7 +37,7 @@ class App extends React.Component {
           <Route
             exact={true}
             path={FrontendRoute.HOME_PAGE}
-            component={withNavbar(withAuthRedirect(DashboardContainer))}
+            component={withNavbar(withAuthRedirect(Dashboard))}
           />
           <Route
             exact={true}
@@ -127,6 +129,38 @@ class App extends React.Component {
                 redirAfterLogin: true,
                 AuthVerification: (user: IAccount) =>
                   user.confirmed && user.accountType === UserType.STAFF,
+              })
+            )}
+          />
+          <Route
+            exact={true}
+            path={FrontendRoute.CONFIRM_HACKER_PAGE}
+            component={withNavbar(
+              withAuthRedirect(
+                withHackerRedirect(ConfirmAttendanceContainer, {
+                  requiredAuthState: true,
+                  AuthVerification: (user: IHacker) =>
+                    // user must have been accepted in order to confirm.
+                    user.status === HackerStatus.HACKER_STATUS_ACCEPTED,
+                }),
+                {
+                  redirAfterLogin: true,
+                  AuthVerification: (user: IAccount) =>
+                    user.confirmed && user.accountType === UserType.HACKER,
+                }
+              )
+            )}
+          />
+          <Route
+            exact={true}
+            path={FrontendRoute.ADMIN_SEARCH_PAGE}
+            component={withNavbar(
+              withAuthRedirect(SearchContainer, {
+                requiredAuthState: true,
+                AuthVerification: (user: IAccount) =>
+                  user.confirmed &&
+                  (user.accountType === UserType.STAFF ||
+                    user.accountType === UserType.SPONSOR),
               })
             )}
           />
