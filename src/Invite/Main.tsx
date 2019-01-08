@@ -8,6 +8,7 @@ import {
 import * as React from 'react';
 
 import { Box, Flex } from '@rebass/grid';
+import _ from 'lodash';
 import { Account } from '../api/account';
 import { IInviteInfo, REQUIRED_DESCRIPTION } from '../config';
 import { Button, FormDescription, H1, MaxWidthBox } from '../shared/Elements';
@@ -15,10 +16,12 @@ import { Form } from '../shared/Form';
 import { Error } from '../shared/Form/FormikElements';
 import theme from '../shared/Styles/theme';
 import InviteFileUpload from './InviteFile';
+import { InvitesTable } from './InvitesTable';
 import { getValidationSchema } from './validationSchema';
 
 interface IInviteState {
   invited: IInviteInfo[];
+  toInvite: IInviteInfo[];
   isInviting: boolean;
 }
 
@@ -27,6 +30,7 @@ class InviteContainer extends React.Component<{}, IInviteState> {
     super(props);
     this.state = {
       invited: [],
+      toInvite: [],
       isInviting: false,
     };
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -35,10 +39,14 @@ class InviteContainer extends React.Component<{}, IInviteState> {
     this.parseCSV = this.parseCSV.bind(this);
   }
   public async componentDidMount() {
-    const response = await Account.getInvites();
-    this.setState({
-      invited: response.data.data.invites,
-    });
+    try {
+      const response = await Account.getInvites();
+      this.setState({
+        invited: response.data.data.invites,
+      });
+    } catch (e) {
+      console.error('Could not get existing invites');
+    }
   }
   public render() {
     return (
@@ -67,6 +75,14 @@ class InviteContainer extends React.Component<{}, IInviteState> {
             }}
             validationSchema={getValidationSchema()}
           />
+          {this.state.toInvite.length > 0 ? (
+            <InvitesTable
+              results={this.state.toInvite}
+              loading={this.state.isInviting}
+            />
+          ) : (
+            ''
+          )}
         </MaxWidthBox>
       </MaxWidthBox>
     );
@@ -93,34 +109,33 @@ class InviteContainer extends React.Component<{}, IInviteState> {
   }
   private handleSubmit(values: FormikValues) {
     const { file } = values;
-    this.parseCSV(file, this.inviteUsers);
+    this.parseCSV(file);
   }
 
-  private parseCSV(
-    file: File,
-    callback: (invites: IInviteInfo[]) => void
-  ): void {
+  private parseCSV(file: File): void {
     const fr = new FileReader();
     fr.readAsText(file);
     fr.onloadend = (e) => {
-      const rows: string[] = String(fr.result).split('\n');
+      const rows: string[] = String(fr.result)
+        .split('\n')
+        .sort();
+      const deduped = _.uniq(rows);
       const invites: IInviteInfo[] = [];
-      rows.forEach((row, index) => {
+      deduped.forEach((row, index) => {
         const cols = row.split(',');
-        console.log(row, cols);
         if (
           !(cols[0] === 'email' || cols[1] === 'accountType') &&
           cols[0] &&
           cols[1]
         ) {
-          // not header
+          // all rows except header
           invites.push({
             email: cols[0],
             accountType: cols[1],
           });
         }
       });
-      callback(invites);
+      this.setState({ toInvite: invites });
     };
   }
 
@@ -130,7 +145,7 @@ class InviteContainer extends React.Component<{}, IInviteState> {
     const notSuccess = [];
     for (const user of newUsers) {
       try {
-        await Account.invite(user);
+        // await Account.invite(user);
         successful.push(user);
       } catch (e) {
         notSuccess.push(user);
@@ -138,10 +153,8 @@ class InviteContainer extends React.Component<{}, IInviteState> {
       }
     }
     // copy for immutability
-    const invited = Object.assign([], this.state.invited);
-    invited.concat(successful);
-    console.log(invited);
-    this.setState({ invited, isInviting: false });
+    const toInvite = this.state.toInvite.concat(successful);
+    this.setState({ toInvite, isInviting: false });
   }
 }
 

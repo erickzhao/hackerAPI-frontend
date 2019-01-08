@@ -10,6 +10,7 @@
     "formik": "^1.4.1",
     "gh-pages": "^2.0.1",
     "js-file-download": "^0.4.4",
+    "lowdash": "^1.2.0",
     "prettier": "^1.15.3",
     "query-string": "^6.2.0",
     "react": "^16.7.0",

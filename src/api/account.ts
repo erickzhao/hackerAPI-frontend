@@ -1,15 +1,15 @@
 import { AxiosPromise, AxiosRequestConfig, AxiosResponse } from 'axios';
 import {
   APIRoute,
+  CACHE_INVITE_KEY,
   CACHE_USER_KEY,
   IAccount,
   IInviteInfo,
-  CACHE_INVITE_KEY,
 } from '../config';
+import { IInviteResponse } from '../config/inviteResponse';
 import LocalCache from '../util/LocalCache';
 import API from './api';
 import APIResponse from './APIResponse';
-import { IInviteResponse } from '../config/inviteResponse';
 
 class AccountAPI {
   constructor() {
